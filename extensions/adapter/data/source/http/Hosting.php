@@ -7,7 +7,7 @@ use lithium\util\String;
 /**
  * Hosting API data source for Lithium.
  */
-class Hosting extends \lithium\data\source\Http {
+abstract class Hosting extends \lithium\data\source\Http {
 
 	/**
      * Map of actions to URI path and parameters.
@@ -26,8 +26,6 @@ class Hosting extends \lithium\data\source\Http {
         'entity'       => 'lithium\data\entity\Document',
         'set'          => 'lithium\data\collection\DocumentArray',
         'schema'       => 'lithium\data\DocumentSchema',
-
-        'digitalocean' => 'li3_hosting\extensions\adapter\data\source\http\hosting\DigitalOcean',
     );
 
     /**

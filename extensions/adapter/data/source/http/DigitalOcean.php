@@ -1,10 +1,13 @@
 <?php
 
-namespace li3_hosting\extensions\adapter\data\source\http\hosting;
+namespace li3_hosting\extensions\adapter\data\source\http;
 
 use lithium\data\model\QueryException;
 
 class DigitalOcean extends \li3_hosting\extensions\adapter\data\source\http\Hosting {
+
+    protected $_clientId = '';
+    protected $_apiKey = '';
 
 	/**
      * Map of actions to URI path and parameters.
@@ -29,32 +32,66 @@ class DigitalOcean extends \li3_hosting\extensions\adapter\data\source\http\Host
      */
     public function __construct(array $config = array()) {
         $defaults = array(
-            'type'      => 'http',
-            'host'      => 'api.digitalocean.com',
-            'port'      => 443,
-            'scheme'    => 'https',
+            'type'     => 'http',
+            'scheme'   => 'https',
+            'port'     => 443,
+            'host'     => 'api.digitalocean.com',
             'auth'      => null,
-            'login'     => null, // client_id
-            'password'  => null, // api_key
+            'login'     => '', // client_id
+            'password'  => '', // api_key
         );
 
-        parent::__construct($config + $defaults);
+        $options = $config + $defaults;
+        $this->_clientId = $options['login'];
+        $this->_apiKey = $options['password'];
+
+        // unset these two otherwise will be used in http auth later down the rabbit hole
+        $options['login'] = '';
+        $options['password'] = '';
+
+        parent::__construct($options);
     }
 
     public function read($query, array $options = array()) {
-		$params     = array('data' => array('format' => 'json'));
-        $method     = 'GET';
-        
-        extract($query->export($this, array('conditions')));
+        pr($query, $options);
 
-        if (!$conditions) {
-            $conditions = array();
-        }
+        /*
+        $defaults = array('return' => 'resource', 'model' => $query->model());
+        $options += $defaults;
+        $params = compact('query', 'options');
+        $conn =& $this->connection;
+        $config = $this->_config;
 
-        $model    = $query->model();
-        $response = $this->_send(__FUNCTION__, $method, $conditions, $params);
+        return $this->_filter(__METHOD__, $params, function($self, $params) use (&$conn, $config) {
+            $query = $params['query'];
+            $options = $params['options'];
+            $params = $query->export($self);
+            extract($params, EXTR_OVERWRITE);
+            list($_path, $conditions) = (array) $conditions;
+            $model = $query->model();
 
-        pr($response); die;
+            if (empty($_path)) {
+                $_path = '_all_docs';
+                $conditions['include_docs'] = 'true';
+            }
+            $path = "{$config['database']}/{$_path}";
+            $args = (array) $conditions + (array) $limit + (array) $order;
+            $result = $conn->get($path, $args);
+            $result = is_string($result) ? json_decode($result, true) : $result;
+            $data = $stats = array();
+
+            if (isset($result['_id'])) {
+                $data = array($result);
+            } elseif (isset($result['rows'])) {
+                $data = $result['rows'];
+                unset($result['rows']);
+                $stats = $result;
+            }
+            $stats += array('total_rows' => null, 'offset' => null);
+            $opts = compact('stats') + array('class' => 'set', 'exists' => true);
+            return $self->item($query->model(), $data, $opts);
+        });
+        /**/
     }
 
     /**
