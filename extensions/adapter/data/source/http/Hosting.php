@@ -2,21 +2,12 @@
 
 namespace li3_hosting\extensions\adapter\data\source\http;
 
-use lithium\util\String;
-
 /**
- * Hosting API data source for Lithium.
+ * Gateway Hosting API data source for Lithium.
  */
 abstract class Hosting extends \lithium\data\source\Http {
 
 	/**
-     * Map of actions to URI path and parameters.
-     *
-     * @var array 
-     */
-    protected $_sources = array();
-
-    /**
      * Fully-name-spaced class references to `Hosting` class dependencies.
      *
      * @var array
@@ -28,39 +19,20 @@ abstract class Hosting extends \lithium\data\source\Http {
         'schema'       => 'lithium\data\DocumentSchema',
     );
 
-    /**
-     * Maps action/parameters to the URI path to be used in the request.
-     * 
-     * @param string $type Action being performed (`create`, `read`, `update` or `delete).
-     * @param array $params Action parameters.
-     * 
-     * @return string URI path to be used in the request.
-     */
-    protected function _path($type, array $params = array()) {
-        if (!isset($this->_sources[$type])) {
-            return null;
-        }
-        
-        // if there is only one possible path for this request type
-        if (!is_array($this->_sources[$type])) {
-            return String::insert($this->_sources[$type], array_map('urlencode', $params) + $this->_config);
-        }
-        
-        $path = null;        
-        $keys = array_keys($params);
-        sort($keys);
+	public function create($query, array $options = array()) {
 
-        foreach ($this->_sources[$type] as $sourcePath => $sourceParams) {
+	}
 
-            sort($sourceParams);
+	public function read($query, array $options = array()) {
 
-            if ($sourceParams === $keys) {
-                $path = String::insert($sourcePath, array_map('urlencode', $params) + $this->_config);
-                break;
-            }            
-        }
+	}
 
-        return $path;
-    }
+	public function update($query, array $options = array()) {
+
+	}
+
+	public function delete($query, array $options = array()) {
+
+	}
 
 }

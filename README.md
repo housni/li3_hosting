@@ -1,4 +1,4 @@
 li3_hosting
 ===========
 
-Lithium Framework extension for different hosting api
+Lithium Framework gateway extension for comunicating with different hosting APIs
