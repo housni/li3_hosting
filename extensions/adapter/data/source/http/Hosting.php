@@ -15,8 +15,8 @@ abstract class Hosting extends \lithium\data\source\Http {
     protected $_classes = array(
         'service'      => 'lithium\net\http\Service',
         'entity'       => 'lithium\data\entity\Document',
-        'set'          => 'lithium\data\collection\DocumentArray',
-        'schema'       => 'lithium\data\DocumentSchema',
+        'set'          => 'lithium\data\collection\DocumentSet',
+        'schema'       => 'lithium\data\DocumentSchema'
     );
 
 	public function create($query, array $options = array()) {
