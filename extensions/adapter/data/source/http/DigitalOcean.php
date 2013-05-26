@@ -16,10 +16,12 @@ class DigitalOcean extends Hosting {
      * @var array 
      */
 	protected $_sources = array(
+        'create' => array(
+            '/droplets/new'   => array(),
+        ),
         'read' => array(
         	'/droplets'       => array(),
         	'/droplets/{:id}' => array('id'),
-        	'/droplets/new'   => array(),
         	'/regions'        => array(),
         	'/images'         => array(),
         	'/sizes'          => array(),
@@ -30,9 +32,12 @@ class DigitalOcean extends Hosting {
      * Map responses to objects
      */
     protected $_mappings = array(
+        'create' => array(
+            '/droplets/new'   => array('class' => 'entity', 'data' => 'droplet'),
+        ),
         'read' => array(
             '/droplets'       => array('class' => 'set', 'data' => 'droplets'),
-            '/droplets/{:id}' => array('class' => 'entity', 'data' => 'droplets'),
+            '/droplets/{:id}' => array('class' => 'entity', 'data' => 'droplet'),
         ),
     );
 
@@ -127,7 +132,7 @@ class DigitalOcean extends Hosting {
         $config = $this->_config;
 
         // add DigitalOcean API credentials for auth
-        $data = array('client_id' => $this->_clientId, 'api_key' => $this->_apiKey);
+        $data = (array) $params['data'] + array('client_id' => $this->_clientId, 'api_key' => $this->_apiKey);
 
         $result = $conn->get($path, $data);
         $result = is_string($result) ? json_decode($result, true) : $result;
@@ -142,6 +147,29 @@ class DigitalOcean extends Hosting {
     /**
      * Read data from API server
      */
+    public function create($query, array $options = array()) {
+        $params['type'] = __FUNCTION__;
+        $params['data'] = (array) $query->data();
+
+        $params['path'] = '';
+        if (isset($params['data']['type']) && $params['data']['type'] == 'server') {
+            $params['path'] = key($this->_sources[__FUNCTION__]);
+        }
+        unset($params['data']['type']);
+        $params['conditions'] = array();
+
+        // call API
+        $response = $this->_send('get', $params);
+
+        if ($response) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Read data from API server
+     */
     public function read($query, array $options = array()) {
         if (!isset($options['path'])) {
             throw new QueryException('Api query path is missing.');
@@ -151,14 +179,14 @@ class DigitalOcean extends Hosting {
 
         // call API
         $response = $this->_send('get', $options);
+        // TODO cache the API response and invalidate the cache on a create / delete request
 
-        //pr($response); die('__A__');
+        // get reponse mappings to objects and data container from response
         $mapping = $this->_mapResponse(__FUNCTION__, $options['path']);
-        
+
         $data = $response[$mapping['data']];
         $opts = array('class' => $mapping['class'], 'exists' => true);
 
         return $this->item($query->model(), $data, $opts);
     }
-
 }
