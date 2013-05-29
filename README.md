@@ -17,6 +17,8 @@ Add a connection
 
 Listing all Digital Ocean servers
 
+		use li3_hosting\models\DigitalOcean;
+		
 		$do = DigitalOcean::servers();
 		foreach ($do as $d) {
 			print_r($d);
