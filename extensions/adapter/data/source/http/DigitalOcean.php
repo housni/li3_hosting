@@ -25,6 +25,8 @@ class DigitalOcean extends Hosting {
         	'/regions'        => array(),
         	'/images'         => array(),
         	'/sizes'          => array(),
+            '/ssh_keys'       => array(),
+            '/ssh_keys/{:id}' => array('id'),
         ),
 	);
 
@@ -38,6 +40,8 @@ class DigitalOcean extends Hosting {
         'read' => array(
             '/droplets'       => array('class' => 'set', 'data' => 'droplets'),
             '/droplets/{:id}' => array('class' => 'entity', 'data' => 'droplet'),
+            '/ssh_keys'       => array('class' => 'set', 'data' => 'ssh_keys'),
+            '/ssh_keys/{:id}' => array('class' => 'entity', 'data' => 'ssh_keys'),
         ),
     );
 
@@ -81,7 +85,7 @@ class DigitalOcean extends Hosting {
             case '/servers/{:id}':
                 return '/droplets/{:id}';
             default:
-                throw new QueryException("Api query path {$path} is not supported.");
+                return $path;
         }
     }
 
@@ -132,7 +136,8 @@ class DigitalOcean extends Hosting {
         $config = $this->_config;
 
         // add DigitalOcean API credentials for auth
-        $data = (array) $params['data'] + array('client_id' => $this->_clientId, 'api_key' => $this->_apiKey);
+        $data = isset($params['data']) ? (array) $params['data'] : array();
+        $data += array('client_id' => $this->_clientId, 'api_key' => $this->_apiKey);
 
         $result = $conn->get($path, $data);
         $result = is_string($result) ? json_decode($result, true) : $result;
