@@ -22,11 +22,11 @@ class DigitalOcean extends Hosting {
 		$cacheKey = $type . '::' . $id . '::' . $userId;
 
 		if($result = Cache::read('default', $cacheKey)) {
-			return self::create($result, array('exists' => true));
+			return $result;
 		} else {
 			$result = parent::find($type, $options);
  
-    		Cache::write('default', $cacheKey, $result->to('array'), $cache);
+    		Cache::write('default', $cacheKey, $result, $cache);
     		return $result;
 		}
     }

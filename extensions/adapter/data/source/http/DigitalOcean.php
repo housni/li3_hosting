@@ -22,8 +22,6 @@ class DigitalOcean extends Hosting {
         'read' => array(
         	'/droplets'       => array(),
         	'/droplets/{:id}' => array('id'),
-        	'/regions'        => array(),
-        	'/images'         => array(),
         	'/sizes'          => array(),
             '/ssh_keys'       => array(),
             '/ssh_keys/{:id}' => array('id'),
@@ -38,10 +36,10 @@ class DigitalOcean extends Hosting {
             '/droplets/new'   => array('class' => 'entity', 'data' => 'droplet'),
         ),
         'read' => array(
-            '/droplets'       => array('class' => 'set', 'data' => 'droplets'),
+            '/droplets'       => array('class' => 'set',    'data' => 'droplets'),
             '/droplets/{:id}' => array('class' => 'entity', 'data' => 'droplet'),
-            '/sizes'          => array('class' => 'set', 'data' => 'sizes'),
-            '/ssh_keys'       => array('class' => 'set', 'data' => 'ssh_keys'),
+            '/sizes'          => array('class' => 'set',    'data' => 'sizes'),
+            '/ssh_keys'       => array('class' => 'set',    'data' => 'ssh_keys'),
             '/ssh_keys/{:id}' => array('class' => 'entity', 'data' => 'ssh_keys'),
         ),
     );
