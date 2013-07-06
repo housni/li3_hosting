@@ -40,6 +40,7 @@ class DigitalOcean extends Hosting {
         'read' => array(
             '/droplets'       => array('class' => 'set', 'data' => 'droplets'),
             '/droplets/{:id}' => array('class' => 'entity', 'data' => 'droplet'),
+            '/sizes'          => array('class' => 'set', 'data' => 'sizes'),
             '/ssh_keys'       => array('class' => 'set', 'data' => 'ssh_keys'),
             '/ssh_keys/{:id}' => array('class' => 'entity', 'data' => 'ssh_keys'),
         ),
