@@ -30,6 +30,8 @@ class DigitalOcean extends Hosting {
     		return $result;
 		}
     }
+
+    // TODO invalidate cache in create, update, delete
 }
 
 DigitalOcean::finder('servers', function($self, $params, $chain) {
