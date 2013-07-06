@@ -24,6 +24,16 @@ Listing all Digital Ocean servers
 			print_r($d);
 		}
 		
+Listing Digital Ocean servers using `id` condition
+
+		use li3_hosting\models\DigitalOcean;
+		
+		$do = DigitalOcean::servers(array(
+			'conditions' => array('id' => $some_id)
+		));
+		foreach ($do as $d) {
+			print_r($d);
+		}
 
 Create a server on Digital Ocean
 
