@@ -149,7 +149,7 @@ class DigitalOcean extends Hosting {
     }
 
     /**
-     * Read data from API server
+     * Create entity using API
      */
     public function create($query, array $options = array()) {
         $params['type'] = __FUNCTION__;
