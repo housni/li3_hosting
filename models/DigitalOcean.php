@@ -50,8 +50,15 @@ DigitalOcean::applyFilter('save', function($self, $params, $chain) {
 	$user = Auth::check('default');
     $userId = isset($user['id']) ? $user['id'] : '';
 
+    // clear cache for collection
     $cacheKey = $userId . '::' . Inflector::pluralize($params['entity']->type) . '::';
     Cache::delete('default', $cacheKey);
+
+    // clear cache for entity
+    if ($params['entity']->id) {
+    	$cacheKey = $userId . '::' . Inflector::pluralize($params['entity']->type) . '::' . $params['entity']->id;
+    	Cache::delete('default', $cacheKey);
+    }
 
 	return $chain->next($self, $params, $chain);
 });
