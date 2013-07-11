@@ -128,7 +128,7 @@ class DigitalOcean extends Hosting {
      * 
      * @return string json
      */
-    protected function _send($method, array $params = array()) {
+    protected function _send($method, $query, array $params = array()) {
         $path = $this->_path($params['type'], $params['path'], (array) $params['conditions']);
 
         $conn =& $this->connection;
@@ -142,7 +142,15 @@ class DigitalOcean extends Hosting {
         $result = is_string($result) ? json_decode($result, true) : $result;
 
         if (isset($result['status']) && $result['status'] == 'OK') {
-            return $result;
+            // get reponse mappings to objects and data container from response
+            $mapping = $this->_mapResponse($params['type'], $params['path']);
+
+            $itemData = isset($params['data']) ? (array) $params['data'] : array();
+            $itemData += $result[$mapping['data']];
+
+            $opts = array('class' => $mapping['class'], 'exists' => true);
+
+            return $this->item($query->model(), $itemData, $opts);
         } else {
             throw new QueryException('Server responded with: ' . $result['status']);
         }
@@ -152,6 +160,8 @@ class DigitalOcean extends Hosting {
      * Create entity using API
      */
     public function create($query, array $options = array()) {
+        $entity =& $query->entity();
+
         $params['type'] = __FUNCTION__;
         $params['data'] = (array) $query->data();
 
@@ -163,12 +173,13 @@ class DigitalOcean extends Hosting {
         $params['conditions'] = array();
 
         // call API
-        $response = $this->_send('get', $params);
+        $item = $this->_send('get', $query, $params);
 
-        if ($response) {
-            return true;
+        if ($entity) {
+            $entity->sync($item->id);
         }
-        return false;
+
+        return true;
     }
 
     /**
@@ -182,15 +193,6 @@ class DigitalOcean extends Hosting {
         $options['path'] = $this->_mapPath($options['path']);
 
         // call API
-        $response = $this->_send('get', $options);
-        // TODO cache the API response and invalidate the cache on a create / delete request
-
-        // get reponse mappings to objects and data container from response
-        $mapping = $this->_mapResponse(__FUNCTION__, $options['path']);
-
-        $data = $response[$mapping['data']];
-        $opts = array('class' => $mapping['class'], 'exists' => true);
-
-        return $this->item($query->model(), $data, $opts);
+        return $this->_send('get', $query, $options);
     }
 }
