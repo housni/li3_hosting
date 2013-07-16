@@ -7,6 +7,9 @@ namespace li3_hosting\extensions\adapter\data\source\http;
  */
 abstract class Hosting extends \lithium\data\source\Http {
 
+	protected static $_user = '';
+    protected static $_pass = '';
+
 	/**
      * Fully-name-spaced class references to `Hosting` class dependencies.
      *
@@ -33,6 +36,10 @@ abstract class Hosting extends \lithium\data\source\Http {
 
 	public function delete($query, array $options = array()) {
 
+	}
+
+	public static function getCredentials() {
+		return array('user' => self::$_user, 'pass' => self::$_pass);
 	}
 
 }

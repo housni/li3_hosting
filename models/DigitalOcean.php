@@ -2,7 +2,6 @@
 
 namespace li3_hosting\models;
 
-use lithium\security\Auth;
 use lithium\storage\Cache;
 use lithium\util\Inflector;
 
@@ -14,21 +13,28 @@ class DigitalOcean extends Hosting {
     );
     
     public static function find($type, array $options = array()) {
+    	$self = static::_object();
+
     	$id = isset($options['conditions']['id']) ? $options['conditions']['id'] : '';
     	$cache = isset($options['meta']['cache']) ? $options['meta']['cache'] : '+30 day';
 
-    	$user = Auth::check('default');
-    	$userId = isset($user['id']) ? $user['id'] : '';
+    	if ($cache) {
+    		$conn = $self::connection();
+    		$credentials = $conn::getCredentials();
+    		$cacheKey = $credentials['user'] . '::' . $credentials['pass'] . '::' . $type . '::' . $id;
 
-		$cacheKey = $userId . '::' . $type . '::' . $id;
+    		if($result = Cache::read('default', $cacheKey)) {
+				return $result;
+			} else {
+				// read from API and save the result in cache
+				$result = parent::find($type, $options);
 
-		if($result = Cache::read('default', $cacheKey)) {
-			return $result;
-		} else {
-			$result = parent::find($type, $options);
-
-    		Cache::write('default', $cacheKey, $result, $cache);
-    		return $result;
+	    		Cache::write('default', $cacheKey, $result, $cache);
+	    		return $result;
+			}
+    	} else {
+    		// just read from API and dont save the result into cache
+    		return parent::find($type, $options);
 		}
     }
 
@@ -70,7 +76,7 @@ DigitalOcean::finder('servers', function($self, $params, $chain) {
 		$params['options']['path'] = '/servers';
 	}
 
-	$params['meta']['cacahe'] = '+2 hours';
+	$params['meta']['cache'] = '+2 hours';
 
     return $chain->next($self, $params, $chain);
 });
@@ -82,7 +88,7 @@ DigitalOcean::finder('ssh_keys', function($self, $params, $chain) {
 		$params['options']['path'] = '/ssh_keys';
 	}
 
-	$params['meta']['cacahe'] = '+15 minutes';
+	$params['meta']['cache'] = '+15 minutes';
 
     return $chain->next($self, $params, $chain);
 });

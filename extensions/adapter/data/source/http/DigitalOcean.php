@@ -7,9 +7,6 @@ use lithium\util\String;
 
 class DigitalOcean extends Hosting {
 
-    protected $_clientId = '';
-    protected $_apiKey = '';
-
 	/**
      * Map of actions to URI path and parameters.
      *
@@ -61,8 +58,10 @@ class DigitalOcean extends Hosting {
         );
 
         $options = $config + $defaults;
-        $this->_clientId = $options['login'];
-        $this->_apiKey = $options['password'];
+
+        // save credentials in object
+        self::$_user = $options['login'];
+        self::$_pass = $options['password'];
 
         // unset these two otherwise will be used in http auth later down the rabbit hole
         $options['login'] = '';
@@ -136,7 +135,7 @@ class DigitalOcean extends Hosting {
 
         // add DigitalOcean API credentials for auth
         $data = isset($params['data']) ? (array) $params['data'] : array();
-        $data += array('client_id' => $this->_clientId, 'api_key' => $this->_apiKey);
+        $data += array('client_id' => self::$_user, 'api_key' => self::$_pass);
 
         $result = $conn->get($path, $data);
         $result = is_string($result) ? json_decode($result, true) : $result;
