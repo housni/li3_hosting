@@ -15,6 +15,7 @@ class DigitalOcean extends Hosting {
 	protected $_sources = array(
         'create' => array(
             '/droplets/new'   => array(),
+            '/ssh_keys/new'   => array(),
         ),
         'read' => array(
         	'/droplets'       => array(),
@@ -31,6 +32,7 @@ class DigitalOcean extends Hosting {
     protected $_mappings = array(
         'create' => array(
             '/droplets/new'   => array('class' => 'entity', 'data' => 'droplet'),
+            '/ssh_keys/new'   => array('class' => 'entity', 'data' => 'ssh_key'),
         ),
         'read' => array(
             '/droplets'       => array('class' => 'set',    'data' => 'droplets'),
@@ -165,8 +167,17 @@ class DigitalOcean extends Hosting {
         $params['data'] = (array) $query->data();
 
         $params['path'] = '';
-        if (isset($params['data']['type']) && $params['data']['type'] == 'server') {
-            $params['path'] = key($this->_sources[__FUNCTION__]);
+        if (isset($params['data']['type'])) {
+        	switch ($params['data']['type']) {
+				case 'server':
+					$params['path'] = '/droplets/new';
+				break;
+				case 'ssh_key':
+					$params['path'] = '/ssh_keys/new';
+				break;
+			}
+        } else {
+        	throw new QueryException('Missing create type.');
         }
         unset($params['data']['type']);
         $params['conditions'] = array();

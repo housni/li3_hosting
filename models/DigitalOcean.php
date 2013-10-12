@@ -2,6 +2,8 @@
 
 namespace li3_hosting\models;
 
+use lithium\security\Auth;
+
 use lithium\storage\Cache;
 use lithium\util\Inflector;
 
