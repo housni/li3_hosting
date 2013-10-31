@@ -9,6 +9,8 @@ use lithium\util\Inflector;
 
 class DigitalOcean extends Hosting {
     
+	public static $sizes = array(66 => '512MB', 63 => '1GB', 62 => '2GB');
+
     protected $_meta = array(
         'connection' => 'digitalocean',
         'key'        => 'id'
@@ -18,7 +20,7 @@ class DigitalOcean extends Hosting {
     	$self = static::_object();
 
     	$id = isset($options['conditions']['id']) ? $options['conditions']['id'] : '';
-    	$cache = isset($options['meta']['cache']) ? $options['meta']['cache'] : '+30 day';
+    	$cache = isset($options['meta']['cache']) ? $options['meta']['cache'] : false;
 
     	if ($cache) {
     		$conn = $self::connection();
@@ -90,12 +92,12 @@ DigitalOcean::finder('ssh_keys', function($self, $params, $chain) {
 		$params['options']['path'] = '/ssh_keys';
 	}
 
-	$params['meta']['cache'] = '+15 minutes';
-
     return $chain->next($self, $params, $chain);
 });
 
 DigitalOcean::finder('sizes', function($self, $params, $chain) {
 	$params['options']['path'] = '/sizes';
+	$params['meta']['cache'] = '+30 day';;
+
     return $chain->next($self, $params, $chain);
 });
